@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { getQuestions } from "../services/opentdb";
-import { decodeHtml } from "../utils/decode";
-import { shuffle } from "../utils/shuffle";
+import QuestionCard from "../components/QuestionCard";
 
 export default function Quiz() {
   const { state } = useLocation();
@@ -33,13 +32,10 @@ export default function Quiz() {
     return () => (on = false);
   }, [settings]);
 
-  const current = questions[idx];
-  const answers = useMemo(() => current ? shuffle([...current.incorrect_answers, current.correct_answer]) : [], [current]);
-
   function submit() {
     if (chosen == null) return;
     setRevealed(true);
-    if (chosen === current.correct_answer) setScore(s => s + 1);
+    if (chosen === questions[idx].correct_answer) setScore(s => s + 1);
   }
 
   function next() {
@@ -58,43 +54,16 @@ export default function Quiz() {
 
   return (
     <div className="max-w-2xl mx-auto grid gap-4">
-      <div className="bg-white rounded-2xl shadow p-5">
-        <div className="text-sm text-gray-500 mb-2">Question {idx + 1} of {questions.length}</div>
-        <h2 className="text-lg font-semibold mb-4">{decodeHtml(current.question)}</h2>
-
-        <div className="grid gap-3 mb-4">
-          {answers.map((ans, i) => {
-            const isCorrect = ans === current.correct_answer;
-            const isChosen = ans === chosen;
-            const classes = [
-              "border rounded-xl px-4 py-3 text-left focus:outline-none focus:ring",
-              isChosen ? "ring-2" : "",
-              revealed && isChosen && isCorrect ? "bg-green-100 border-green-400" : "",
-              revealed && isChosen && !isCorrect ? "bg-red-100 border-red-400" : "",
-              revealed && !isChosen && isCorrect ? "bg-green-50 border-green-300" : "",
-            ].join(" ");
-            return (
-              <button key={i} disabled={revealed} onClick={() => setChosen(ans)} className={classes}>
-                {decodeHtml(ans)}
-              </button>
-            );
-          })}
-        </div>
-
-        {!revealed ? (
-          <button onClick={submit} disabled={chosen == null} className="bg-blue-600 disabled:opacity-60 text-white rounded-xl px-4 py-2">
-            Submit
-          </button>
-        ) : (
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-600">
-              {chosen === current.correct_answer ? "Correct! 🎉" : "Not quite. Keep going!"}
-            </div>
-            <button onClick={next} className="border rounded-xl px-4 py-2">Next</button>
-          </div>
-        )}
-      </div>
-
+      <QuestionCard
+        q={questions[idx]}
+        index={idx}
+        total={questions.length}
+        chosen={chosen}
+        setChosen={setChosen}
+        revealed={revealed}
+        onSubmit={submit}
+        onNext={next}
+      />
       <div className="text-sm text-gray-700">Score: <b>{score}</b></div>
     </div>
   );
