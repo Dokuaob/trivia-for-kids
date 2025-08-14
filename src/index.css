@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* sunny yellow polka background like the mock */
+.polka-bg {
+  background: #ffe168;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.35) 1.6px, transparent 1.6px);
+  background-size: 18px 18px;
+}
+
+/* soft card with yellow edge glow */
+.card-soft {
+  border-radius: 1.5rem;
+  background: #fffdf7;
+  box-shadow:
+    0 12px 30px rgba(0,0,0,0.06),
+    0 0 0 3px #fff3bf inset;
+}
